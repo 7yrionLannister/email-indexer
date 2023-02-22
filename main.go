@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"strings"
@@ -20,27 +19,39 @@ func main() {
 	// iterate all users
 	for i := 0; i < len(rootDir); i++ {
 		currentIndex = rootDir[i].Name()
-		// iterate all files and directories in userDir recursively and perform the given function on each item
+		// iterate all files and directories in the user folder recursively and perform the given function on each item
+		fmt.Println(currentIndex)
 		filepath.Walk(rootPath+"/"+currentIndex+"/", processEmailFile)
 	}
 }
 
 func processEmailFile(path string, info os.FileInfo, err error) error {
 	file, err := os.ReadFile(path)
-	if err != nil {
+	if err != nil { // if there is an error it is probably because "file" is not a file but a directory, so we ignore it
 		return nil
 	}
 	fileContent := string(file)
 	m := make(map[string]string)
 	lines := strings.Split(fileContent, "\n")
 	startOfBody := 0
+	lastKey := ""
+	// iterate each line of the file
 	for i := 0; i < len(lines); i++ {
 		currentLine := lines[i]
-		if strings.Contains(currentLine, ":") {
+		if len(currentLine) > 1 {
+			// the line is not empty
 			keyVal := strings.Split(currentLine, ":")
-			m[keyVal[0]] = keyVal[1]
+			if len(keyVal) == 1 {
+				// this line is not a new key-value pair, but an addition to the previos field
+				m[lastKey] += currentLine
+			} else {
+				// this line is a new key-value pair
+				lastKey = keyVal[0]
+				m[keyVal[0]] = keyVal[1]
+			}
 			startOfBody += len(currentLine)
 		} else {
+			// first empty line marks the beginning of the body
 			startOfBody += i
 			m["body"] = fileContent[startOfBody+1:]
 			break
@@ -52,6 +63,7 @@ func processEmailFile(path string, info os.FileInfo, err error) error {
 
 func saveEmailInfoToDatabase(m map[string]string) {
 	data, _ := json.Marshal(m)
+	// each user is an index
 	req, err := http.NewRequest("POST", "http://localhost:4080/api/"+currentIndex+"/_doc", strings.NewReader(string(data)))
 	if err != nil {
 		log.Fatal(err)
@@ -65,10 +77,4 @@ func saveEmailInfoToDatabase(m map[string]string) {
 		log.Fatal(err)
 	}
 	defer resp.Body.Close()
-	log.Println(resp.StatusCode)
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(string(body))
 }
