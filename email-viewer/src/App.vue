@@ -1,19 +1,11 @@
 <script setup>
 import EmailsTable from "./components/EmailsTableItem.vue";
-import EmailBody from "./components/EmailBodyItem.vue";
 </script>
 
 <template>
-  <header>
-    <div class="wrapper">
-      <EmailsTable
-        emailsJson='[{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"}]' />
-    </div>
-  </header>
-
-  <main>
-    <EmailBody />
-  </main>
+  <div class="wrapper">
+    <EmailsTable user="arora-h" />
+  </div>
 </template>
 
 <style scoped>

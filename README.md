@@ -24,14 +24,12 @@ Do this to run the heap profiling for 15 seconds and save the results to a file
 
 ```bash
 curl http://localhost:6060/debug/heap?seconds=15 --output heap.prof
-go tool pprof heap.prof
 ```
 
 Do this to run the CPU profiling for 15 seconds and save the results to a file
 
 ```bash
 curl http://localhost:6060/debug/cpu?seconds=15 --output cpu.prof
-go tool pprof cpu.prof
 ```
 
 This way you can generate an graph of the given profile file

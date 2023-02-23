@@ -1,11 +1,21 @@
 <script setup>
-import WelcomeItem from "./WelcomeItem.vue";
+import HeaderAndContent from "./HeaderAndContentItem.vue";
+defineProps({
+  subject: {
+    type: String,
+    required: true,
+  },
+  body: {
+    type: String,
+    required: true,
+  },
+});
 </script>
 
 <template>
-  <WelcomeItem>
-    <template #heading>Subject</template>
+  <HeaderAndContent>
+    <template #heading>{{ subject }}</template>
 
-    Body
-  </WelcomeItem>
+    {{ body }}
+  </HeaderAndContent>
 </template>
