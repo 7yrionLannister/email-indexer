@@ -2,27 +2,30 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
-
 	"os"
 	"path/filepath"
+	"runtime"
+	"runtime/pprof"
+	"strings"
 )
 
-var currentIndex string
+var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
+var memprofile = flag.String("memprofile", "", "write memory profile to `file`")
+var userid = flag.String("userid", "", "username of the owner of the emails to process`")
 
 func main() {
+	flag.Parse()
+	cpuProfile()
 	rootPath := "maildir"
-	rootDir, _ := os.ReadDir(rootPath)
-	// iterate all users
-	for i := 0; i < len(rootDir); i++ {
-		currentIndex = rootDir[i].Name()
-		// iterate all files and directories in the user folder recursively and perform the given function on each item
-		fmt.Println(currentIndex)
-		filepath.Walk(rootPath+"/"+currentIndex+"/", processEmailFile)
-	}
+	// iterate all files and directories in the user folder recursively and perform the given function on each item
+	fmt.Println(*userid)
+	filepath.Walk(rootPath+"/"+*userid+"/", processEmailFile)
+
+	memoryProfile()
 }
 
 func processEmailFile(path string, info os.FileInfo, err error) error {
@@ -64,7 +67,7 @@ func processEmailFile(path string, info os.FileInfo, err error) error {
 func saveEmailInfoToDatabase(m map[string]string) {
 	data, _ := json.Marshal(m)
 	// each user is an index
-	req, err := http.NewRequest("POST", "http://localhost:4080/api/"+currentIndex+"/_doc", strings.NewReader(string(data)))
+	req, err := http.NewRequest("POST", "http://localhost:4080/api/"+*userid+"/_doc", strings.NewReader(string(data)))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -77,4 +80,32 @@ func saveEmailInfoToDatabase(m map[string]string) {
 		log.Fatal(err)
 	}
 	defer resp.Body.Close()
+}
+
+func cpuProfile() {
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal("could not create CPU profile: ", err)
+		}
+		defer f.Close() // error handling omitted for example
+		if err := pprof.StartCPUProfile(f); err != nil {
+			log.Fatal("could not start CPU profile: ", err)
+		}
+		defer pprof.StopCPUProfile()
+	}
+}
+
+func memoryProfile() {
+	if *memprofile != "" {
+		f, err := os.Create(*memprofile)
+		if err != nil {
+			log.Fatal("could not create memory profile: ", err)
+		}
+		defer f.Close() // error handling omitted for example
+		runtime.GC()    // get up-to-date statistics
+		if err := pprof.WriteHeapProfile(f); err != nil {
+			log.Fatal("could not write memory profile: ", err)
+		}
+	}
 }
