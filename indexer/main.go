@@ -2,33 +2,37 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
-	"fmt"
 	"log"
 	"net/http"
+	"net/http/pprof"
 	"os"
 	"path/filepath"
-	"runtime"
-	"runtime/pprof"
 	"strings"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
-var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
-var memprofile = flag.String("memprofile", "", "write memory profile to `file`")
-var userid = flag.String("userid", "", "username of the owner of the emails to process`")
-
 func main() {
-	flag.Parse()
-	cpuProfile()
-	rootPath := "maildir"
-	// iterate all files and directories in the user folder recursively and perform the given function on each item
-	fmt.Println(*userid)
-	filepath.Walk(rootPath+"/"+*userid+"/", processEmailFile)
-
-	memoryProfile()
+	r := chi.NewRouter()
+	r.Use(middleware.Logger)
+	r.Get("/process-emails", func(w http.ResponseWriter, r *http.Request) {
+		name := r.URL.Query().Get("name")
+		// iterate all files and directories in the user folder recursively and perform the given function on each item
+		filepath.Walk("maildir/"+name+"/", processEmailFile)
+		w.Write([]byte("Finished processing emails!"))
+	})
+	r.HandleFunc("/debug/heap", func(w http.ResponseWriter, r *http.Request) {
+		pprof.Handler("heap").ServeHTTP(w, r)
+	})
+	r.HandleFunc("/debug/cpu", func(w http.ResponseWriter, r *http.Request) {
+		pprof.Profile(w, r)
+	})
+	log.Println(http.ListenAndServe("localhost:6060", r))
 }
 
 func processEmailFile(path string, info os.FileInfo, err error) error {
+	log.Println("inicio processEmailFile para " + path)
 	file, err := os.ReadFile(path)
 	if err != nil { // if there is an error it is probably because "file" is not a file but a directory, so we ignore it
 		return nil
@@ -61,13 +65,14 @@ func processEmailFile(path string, info os.FileInfo, err error) error {
 		}
 	}
 	saveEmailInfoToDatabase(m)
+	log.Println("fin processEmailFile para " + path)
 	return nil
 }
 
 func saveEmailInfoToDatabase(m map[string]string) {
 	data, _ := json.Marshal(m)
 	// each user is an index
-	req, err := http.NewRequest("POST", "http://localhost:4080/api/"+*userid+"/_doc", strings.NewReader(string(data)))
+	req, err := http.NewRequest("POST", "http://localhost:4080/api/"+"*userid"+"/_doc", strings.NewReader(string(data)))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -80,32 +85,4 @@ func saveEmailInfoToDatabase(m map[string]string) {
 		log.Fatal(err)
 	}
 	defer resp.Body.Close()
-}
-
-func cpuProfile() {
-	if *cpuprofile != "" {
-		f, err := os.Create(*cpuprofile)
-		if err != nil {
-			log.Fatal("could not create CPU profile: ", err)
-		}
-		defer f.Close() // error handling omitted for example
-		if err := pprof.StartCPUProfile(f); err != nil {
-			log.Fatal("could not start CPU profile: ", err)
-		}
-		defer pprof.StopCPUProfile()
-	}
-}
-
-func memoryProfile() {
-	if *memprofile != "" {
-		f, err := os.Create(*memprofile)
-		if err != nil {
-			log.Fatal("could not create memory profile: ", err)
-		}
-		defer f.Close() // error handling omitted for example
-		runtime.GC()    // get up-to-date statistics
-		if err := pprof.WriteHeapProfile(f); err != nil {
-			log.Fatal("could not write memory profile: ", err)
-		}
-	}
 }

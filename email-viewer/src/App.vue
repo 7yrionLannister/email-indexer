@@ -1,19 +1,18 @@
 <script setup>
-import EmailsTable from "./components/EmailsTable.vue";
-import TheWelcome from "./components/TheWelcome.vue";
+import EmailsTable from "./components/EmailsTableItem.vue";
+import EmailBody from "./components/EmailBodyItem.vue";
 </script>
 
 <template>
   <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
     <div class="wrapper">
-      <EmailsTable msg="You did it!" />
+      <EmailsTable
+        emailsJson='[{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"},{"Subject": "This is the subject", "From": "from@gmail.com", "To": "to@gmail.com"}]' />
     </div>
   </header>
 
   <main>
-    <TheWelcome />
+    <EmailBody />
   </main>
 </template>
 
