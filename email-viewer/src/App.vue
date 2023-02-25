@@ -4,7 +4,7 @@ import EmailsTable from "./components/EmailsTableItem.vue";
 
 <template>
   <div class="wrapper">
-    <EmailsTable user="arora-h" />
+    <EmailsTable />
   </div>
 </template>
 

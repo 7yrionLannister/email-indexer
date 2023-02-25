@@ -115,7 +115,6 @@ export default {
           "http://localhost:6060/get-emails?name=" + this.user,
           { crossOriginIsolated: false }
         );
-        // JSON responses are automatically parsed.
         this.emails = response.data["hits"]["hits"];
         console.log(response.data["hits"]["hits"])
       } catch (error) {
