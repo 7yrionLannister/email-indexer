@@ -65,9 +65,21 @@ table {
 }
 
 th,
-td {
+td,
+button,
+input {
   border: 0.1rem solid cyan;
   padding: 0.5rem;
+}
+
+button,
+input {
+  margin: 0.5rem;
+  color: black;
+}
+
+button {
+  background-color: wheat;
 }
 
 th {
@@ -77,7 +89,6 @@ th {
   background-color: darkslategray;
 }
 
-.greetings h1,
 .greetings h3 {
   text-align: center;
 }
@@ -116,7 +127,6 @@ export default {
           { crossOriginIsolated: false }
         );
         this.emails = response.data["hits"]["hits"];
-        console.log(response.data["hits"]["hits"])
       } catch (error) {
         console.log(error);
       }
@@ -127,10 +137,8 @@ export default {
     },
     updateUser() {
       this.currentUser = this.user
-      console.log(this.currentUser);
     },
     showUserEmails() {
-      console.log(this.currentUser);
       this.getData()
     }
   },
